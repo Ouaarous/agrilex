@@ -5,103 +5,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AgriLex</title>
 <style>
-  /* ===== Loading Screen ===== */
+  /* ================= BODY & BACKGROUND ================= */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Gradient background fade-in */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #3a9d23, #f18f01);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 2s ease-in-out;
+  }
+
+  /* ================= LOADING SCREEN ================= */
   #loadingScreen {
     position: fixed;
     top:0; left:0;
-    width:100%; height:100%;
-    background:#f4f4f4;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
+    width: 100%; height: 100%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     z-index: 9999;
-    transition: opacity 1s ease;
+    opacity: 1;
+    transition: opacity 1s ease-out;
   }
 
-  #loadingScreen.fade-out {
-    opacity:0;
-    pointer-events:none;
+  #loadingScreen img {
+    width: 180px;
+    height: auto;
+    margin-bottom: 20px;
   }
 
-  #loadingLogo {
-    width: 200px;
-    margin-bottom:20px;
-  }
-
-  #loadingBarContainer {
-    width: 80%;
-    height: 20px;
+  #progressBarContainer {
+    width: 60%;
     background: #ddd;
     border-radius: 10px;
     overflow: hidden;
   }
 
-  #loadingBar {
-    width:0%;
-    height:100%;
-    background: #4CAF50;
-    transition: width 0.2s;
+  #progressBar {
+    width: 0%;
+    height: 15px;
+    background: #3a9d23;
+    transition: width 0.2s ease;
   }
 
-  #loadingPercent {
-    margin-top:10px;
-    font-weight:bold;
+  #progressText {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
   }
 
-  /* ===== Body & Header ===== */
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: #f4f4f4;
-  }
-
+  /* ================= HEADER ================= */
   header {
     text-align: center;
     margin: 20px 0;
   }
 
-  #logo {
-    width: 220px;
-    height: auto;
-    display: block;
-    margin: 0 auto 20px;
-  }
-
+  /* ================= SEARCH ================= */
   #searchBar {
-    width: 100%;
+    width: 90%;
+    max-width: 500px;
     padding: 12px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #8b5e3c;
-    margin-bottom: 20px;
-    box-sizing: border-box;
+    margin: 20px auto;
+    display: block;
   }
 
-  /* ===== Tools Container ===== */
+  /* ================= TOOLS ================= */
   .tools-container {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
     justify-content: center;
+    padding-bottom: 50px;
   }
 
   .tool-card {
     background: #fff;
     border-radius: 10px;
     padding: 10px;
-    width: 100%;
-    max-width: 300px;
+    width: 300px;
     box-shadow: 0 3px 6px rgba(0,0,0,0.15);
     text-align: center;
-    position: relative;
-    overflow: hidden;
+    transition: transform 0.2s;
+  }
+
+  .tool-card:hover {
+    transform: scale(1.03);
   }
 
   .tool-card img {
     width: 100%;
-    height: auto;
+    height: 150px;
+    object-fit: contain;
     margin-bottom: 10px;
     border-radius: 5px;
   }
@@ -126,126 +135,96 @@
   .english { background: #4b7bec; }
   .spanish { background: #e67e22; }
 
-  /* ===== Description Panel ===== */
+  /* ================= DESCRIPTION ================= */
   .description {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.5s ease, padding 0.5s ease;
-    background: #4CAF50;
-    color: white;
-    border-radius: 0 0 10px 10px;
-    padding: 0 10px;
-    font-size: 14px;
-  }
-
-  .description.open {
-    padding: 10px;
-    max-height: 200px;
-  }
-
-  /* ===== Categories ===== */
-  #categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-
-  .category {
-    padding: 5px 10px;
-    background: #8b5e3c;
+    background: #3a9d23;
     color: white;
     border-radius: 5px;
-    cursor: pointer;
+    margin-top: 5px;
+    padding: 0 10px;
+    font-size: 14px;
+    transition: max-height 0.5s ease;
   }
 
-  /* ===== Responsive ===== */
-  @media (max-width: 600px) {
-    .tool-card p {
-      font-size: 12px;
-    }
-    #searchBar {
-      font-size: 14px;
-      padding: 10px;
-    }
-    #logo {
-      width: 180px;
-    }
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 650px){
+    .tool-card { width: 90%; }
+    #searchBar { width: 95%; }
   }
+
 </style>
 </head>
 <body>
 
-<!-- Loading Screen -->
+<!-- ================= LOADING SCREEN ================= -->
 <div id="loadingScreen">
-  <img id="loadingLogo" src="https://image2url.com/r2/default/images/1770934646510-7aaa09fd-0c67-4c19-a637-ae303a98c5d7.png" alt="AgriLex Logo">
-  <div id="loadingBarContainer"><div id="loadingBar"></div></div>
-  <div id="loadingPercent">0%</div>
+  <img src="https://image2url.com/r2/default/images/1770934646510-7aaa09fd-0c67-4c19-a637-ae303a98c5d7.png" alt="AgriLex Logo">
+  <div id="progressBarContainer">
+    <div id="progressBar"></div>
+  </div>
+  <div id="progressText">0%</div>
 </div>
 
-<header>
-  <img id="logo" src="https://image2url.com/r2/default/images/1770934646510-7aaa09fd-0c67-4c19-a637-ae303a98c5d7.png" alt="AgriLex Logo">
-</header>
+<!-- ================= HEADER ================= -->
+<header></header>
 
-<!-- Categories -->
-<div id="categories">
-  <div class="category" onclick="filterCategory('All')">All</div>
-  <div class="category" onclick="filterCategory('Plows')">Plows</div>
-  <div class="category" onclick="filterCategory('Tractors')">Tractors</div>
-  <div class="category" onclick="filterCategory('Harvest')">Harvest</div>
-</div>
-
+<!-- ================= SEARCH ================= -->
 <input type="text" id="searchBar" placeholder="Search Arabic, French, English or Spanish..." onkeyup="searchTool()">
 
+<!-- ================= TOOLS ================= -->
 <div class="tools-container" id="toolsList"></div>
 
 <script>
-// ===== Loading Animation =====
-let loadPercent = 0;
-const loadingBar = document.getElementById('loadingBar');
-const loadingPercent = document.getElementById('loadingPercent');
-const loadingScreen = document.getElementById('loadingScreen');
+// ================= TOOLS DATA =================
+const tools = [
+  {category:"Plowing",arabic:"المحراث",french:"La charrue",english:"The plow",spanish:"El arado",image:"https://via.placeholder.com/300x150?text=Plow",description:"Used to turn soil for planting."},
+  {category:"Plowing",arabic:"الجرار",french:"Le tracteur",english:"The tractor",spanish:"El tractor",image:"https://via.placeholder.com/300x150?text=Tractor",description:"Used to pull farm equipment."},
+  {category:"Harvesting",arabic:"حاصدة القمح",french:"La moissonneuse-batteuse",english:"Combine harvester",spanish:"Cosechadora de trigo",image:"https://via.placeholder.com/300x150?text=Combine",description:"Harvests crops efficiently."},
+  {category:"Fertilizing",arabic:"ناشر الأسمدة",french:"Épandeur d’engrais",english:"Fertilizer spreader",spanish:"Esparcidor de fertilizante",image:"https://via.placeholder.com/300x150?text=Fertilizer+Spreader",description:"Distributes fertilizer on fields."},
+  {category:"Irrigation",arabic:"المرشة",french:"Arrosoir",english:"Watering can",spanish:"Regadera",image:"https://via.placeholder.com/300x150?text=Watering+Can",description:"Used to water plants manually."},
+  {category:"Harvesting",arabic:"المنجل",french:"Faucille",english:"Sickle",spanish:"Hoz",image:"https://via.placeholder.com/300x150?text=Sickle",description:"Used to cut crops by hand."},
+  {category:"Tools",arabic:"المجرفة",french:"La pelle",english:"Shovel",spanish:"Pala",image:"https://via.placeholder.com/300x150?text=Shovel",description:"Used for digging and moving soil."},
+  {category:"Tools",arabic:"فأس",french:"La hache",english:"Axe",spanish:"Hacha",image:"https://via.placeholder.com/300x150?text=Axe",description:"Used to chop wood."},
+  {category:"Harvesting",arabic:"الحصادة",french:"La moissonneuse",english:"Harvester",spanish:"Segadora",image:"https://via.placeholder.com/300x150?text=Harvester",description:"Collects mature crops from fields."},
+  {category:"Fertilizing",arabic:"البخاخ",french:"Le pulvérisateur",english:"Sprayer",spanish:"Pulverizador",image:"https://via.placeholder.com/300x150?text=Sprayer",description:"Sprays pesticides or fertilizers."},
+  {category:"Irrigation",arabic:"الساقية",french:"Noria",english:"Water wheel",spanish:"Noria",image:"https://via.placeholder.com/300x150?text=Water+Wheel",description:"Used to lift water from wells or rivers."},
+  {category:"Tools",arabic:"المنشار",french:"Scie",english:"Saw",spanish:"Sierra",image:"https://via.placeholder.com/300x150?text=Saw",description:"Used to cut wood."},
+  {category:"Tools",arabic:"المعول",french:"Pioche",english:"Pickaxe",spanish:"Pico",image:"https://via.placeholder.com/300x150?text=Pickaxe",description:"Used to break soil or rocks."},
+  {category:"Tools",arabic:"المقص",french:"Les ciseaux",english:"Scissors",spanish:"Tijeras",image:"https://via.placeholder.com/300x150?text=Scissors",description:"Used to cut materials."},
+  {category:"Tools",arabic:"القفازات",french:"Les gants",english:"Gloves",spanish:"Guantes",image:"https://via.placeholder.com/300x150?text=Gloves",description:"Protect hands while working."},
+  {category:"Storage",arabic:"صناديق التخزين",french:"Les boîtes de stockage",english:"Storage boxes",spanish:"Cajas de almacenamiento",image:"https://via.placeholder.com/300x150?text=Storage+Boxes",description:"Used to store harvested crops."},
+  {category:"Irrigation",arabic:"مضخة المياه",french:"La pompe à eau",english:"Water pump",spanish:"Bomba de agua",image:"https://via.placeholder.com/300x150?text=Water+Pump",description:"Pumps water for irrigation."},
+  {category:"Egg Farming",arabic:"حاضنة البيض",french:"Incubateur d’œufs",english:"Egg incubator",spanish:"Incubadora de huevos",image:"https://via.placeholder.com/300x150?text=Egg+Incubator",description:"Hatches eggs artificially."},
+  {category:"Egg Farming",arabic:"عربة البيض",french:"Chariot d’œufs",english:"Egg cart",spanish:"Carro de huevos",image:"https://via.placeholder.com/300x150?text=Egg+Cart",description:"Transports eggs safely."},
+  {category:"Egg Farming",arabic:"آلة فرز البيض",french:"Machine de tri des œufs",english:"Egg sorting machine",spanish:"Máquina clasificadora de huevos",image:"https://via.placeholder.com/300x150?text=Egg+Sorting+Machine",description:"Sorts eggs by size or quality."}
+];
 
-let loadingInterval = setInterval(() => {
-  loadPercent += 2;
-  loadingBar.style.width = loadPercent + '%';
-  loadingPercent.textContent = loadPercent + '%';
-  if(loadPercent >= 100){
+// ================= LOADING ANIMATION =================
+let loadProgress = 0;
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+
+const loadingInterval = setInterval(()=>{
+  if(loadProgress >= 100){
     clearInterval(loadingInterval);
-    loadingScreen.classList.add('fade-out');
+    document.getElementById('loadingScreen').style.opacity = 0;
+    setTimeout(()=> document.getElementById('loadingScreen').style.display = "none",1000);
+    document.body.querySelector("body::before").style.opacity = 1;
+    document.body.style.background = "linear-gradient(135deg, #3a9d23, #f18f01)";
+  } else {
+    loadProgress += 2;
+    progressBar.style.width = loadProgress + "%";
+    progressText.textContent = loadProgress + "%";
   }
 }, 40);
 
-// ===== Tools Data =====
-const tools = [
-  {category:'Plows', arabic:"المحراث", french:"La charrue", english:"The plow", spanish:"El arado", image:"https://ibb.co/4RMMyYcn", description:"Used to till soil before planting."},
-  {category:'Tractors', arabic:"الجرار", french:"Le tracteur", english:"The tractor", spanish:"El tractor", image:"https://via.placeholder.com/300x150?text=Tractor", description:"Vehicle for pulling farm equipment."},
-  {category:'Harvest', arabic:"حاصدة القمح", french:"La moissonneuse-batteuse", english:"Combine harvester", spanish:"Cosechadora de trigo", image:"https://via.placeholder.com/300x150?text=Combine", description:"Machine that harvests crops efficiently."},
-  {category:'Plows', arabic:"المحراث اليدوي", french:"Charrue à main", english:"Hand plow", spanish:"Arado manual", image:"https://via.placeholder.com/300x150?text=Hand+Plow", description:"Manual plow for small plots."},
-  {category:'Harvest', arabic:"المنجل", french:"Faucille", english:"Sickle", spanish:"Hoz", image:"https://via.placeholder.com/300x150?text=Sickle", description:"Hand tool for cutting crops."},
-  {category:'Tractors', arabic:"ناقل السماد", french:"Épandeur d’engrais", english:"Fertilizer spreader", spanish:"Esparcidor de fertilizante", image:"https://via.placeholder.com/300x150?text=Fertilizer+Spreader", description:"Spreads fertilizer evenly."},
-  {category:'Harvest', arabic:"الحصادة", french:"La moissonneuse", english:"Harvester", spanish:"Segadora", image:"https://via.placeholder.com/300x150?text=Harvester", description:"Collects crops from the field."},
-  {category:'Plows', arabic:"المعول", french:"Pioche", english:"Pickaxe", spanish:"Pico", image:"https://via.placeholder.com/300x150?text=Pickaxe", description:"Tool to break hard soil."},
-  {category:'Tractors', arabic:"الجرار الصغير", french:"Petit tracteur", english:"Mini tractor", spanish:"Mini tractor", image:"https://via.placeholder.com/300x150?text=Mini+Tractor", description:"Small tractor for gardens."},
-  {category:'Harvest', arabic:"آلة الفرز", french:"La machine de tri", english:"Sorting machine", spanish:"Máquina clasificadora", image:"https://via.placeholder.com/300x150?text=Sorting+Machine", description:"Sorts harvested products."},
-  {category:'Plows', arabic:"فأس الحراثة", french:"Hache de charrue", english:"Plow axe", spanish:"Hacha de arado", image:"https://via.placeholder.com/300x150?text=Plow+Axe", description:"Used for breaking soil clods."},
-  {category:'Tractors', arabic:"الجرار الكبير", french:"Grand tracteur", english:"Big tractor", spanish:"Gran tractor", image:"https://via.placeholder.com/300x150?text=Big+Tractor", description:"Heavy-duty tractor for large farms."},
-  {category:'Harvest', arabic:"آلة التغليف", french:"La machine d'emballage", english:"Packaging machine", spanish:"Máquina de envasado", image:"https://via.placeholder.com/300x150?text=Packaging+Machine", description:"Packages harvested crops."},
-  {category:'Plows', arabic:"المدك", french:"Pilon", english:"Pestle", spanish:"Pilón", image:"https://via.placeholder.com/300x150?text=Pestle", description:"Used for pounding grains."},
-  {category:'Harvest', arabic:"مكشطة القش", french:"La raclette de paille", english:"Straw scraper", spanish:"Rasqueta de paja", image:"https://via.placeholder.com/300x150?text=Straw+Scraper", description:"Collects straw efficiently."},
-  {category:'Tractors', arabic:"المضخات", french:"Pompes", english:"Pumps", spanish:"Bombas", image:"https://via.placeholder.com/300x150?text=Pumps", description:"Pumps water for irrigation."},
-  {category:'Plows', arabic:"المجرفة", french:"La pelle", english:"Shovel", spanish:"Pala", image:"https://via.placeholder.com/300x150?text=Shovel", description:"Used to dig soil."},
-  {category:'Harvest', arabic:"معاول القطاف", french:"Les crochets de récolte", english:"Harvest hooks", spanish:"Ganchos de cosecha", image:"https://via.placeholder.com/300x150?text=Harvest+Hooks", description:"Hand tool for picking crops."},
-  {category:'Tractors', arabic:"حاضنة البيض", french:"Incubateur d’œufs", english:"Egg incubator", spanish:"Incubadora de huevos", image:"https://via.placeholder.com/300x150?text=Egg+Incubator", description:"Hatches eggs for poultry."},
-  {category:'Harvest', arabic:"آلة تنظيف الحظائر", french:"Plumeuse", english:"Feather plucker", spanish:"Plumadora", image:"https://via.placeholder.com/300x150?text=Feather+Plucker", description:"Removes feathers from poultry."}
-];
-
-// ===== Display Tools =====
+// ================= DISPLAY TOOLS =================
 function displayTools(list){
   const container = document.getElementById('toolsList');
   container.innerHTML = '';
-  list.forEach(tool => {
+  list.forEach(tool=>{
     const div = document.createElement('div');
     div.className = 'tool-card';
     div.innerHTML = `
@@ -256,20 +235,26 @@ function displayTools(list){
       <p><span class="lang-label spanish">ES</span>${tool.spanish}</p>
       <div class="description">${tool.description}</div>
     `;
-    // Slide down description on click
-    div.querySelectorAll('p').forEach(p => {
-      p.addEventListener('click', () => {
-        const desc = div.querySelector('.description');
-        desc.classList.toggle('open');
+    container.appendChild(div);
+
+    // Slide-down description toggle
+    const desc = div.querySelector('.description');
+    const pTags = div.querySelectorAll('p');
+    pTags.forEach(p=>{
+      p.addEventListener('click', ()=> {
+        if(desc.style.maxHeight){
+          desc.style.maxHeight = null;
+        } else {
+          desc.style.maxHeight = desc.scrollHeight + "px";
+        }
       });
     });
-    container.appendChild(div);
   });
 }
 
-// ===== Search =====
+// ================= SEARCH FUNCTION =================
 function searchTool(){
-  const query = document.getElementById('searchBar').value.toLowerCase();
+  const query = document.getElementById('searchBar').value.trim().toLowerCase();
   const filtered = tools.filter(tool =>
     tool.arabic.includes(query) ||
     tool.french.toLowerCase().includes(query) ||
@@ -279,15 +264,9 @@ function searchTool(){
   displayTools(filtered);
 }
 
-// ===== Categories Filter =====
-function filterCategory(cat){
-  if(cat === 'All') displayTools(tools);
-  else displayTools(tools.filter(t => t.category === cat));
-}
-
-// Initial display
+// Display all tools initially
 displayTools(tools);
-</script>
 
+</script>
 </body>
 </html>
