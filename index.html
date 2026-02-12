@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriLex</title>
+<style>
+  /* ===== Loading Screen ===== */
+  #loadingScreen {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:#f4f4f4;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index: 9999;
+    transition: opacity 1s ease;
+  }
+
+  #loadingScreen.fade-out {
+    opacity:0;
+    pointer-events:none;
+  }
+
+  #loadingLogo {
+    width: 200px;
+    margin-bottom:20px;
+  }
+
+  #loadingBarContainer {
+    width: 80%;
+    height: 20px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  #loadingBar {
+    width:0%;
+    height:100%;
+    background: #4CAF50;
+    transition: width 0.2s;
+  }
+
+  #loadingPercent {
+    margin-top:10px;
+    font-weight:bold;
+  }
+
+  /* ===== Body & Header ===== */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f4f4f4;
+  }
+
+  header {
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  #logo {
+    width: 220px;
+    height: auto;
+    display: block;
+    margin: 0 auto 20px;
+  }
+
+  #searchBar {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #8b5e3c;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+  }
+
+  /* ===== Tools Container ===== */
+  .tools-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+
+  .tool-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
+    max-width: 300px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-card img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+
+  .tool-card p {
+    margin: 5px 0;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .lang-label {
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: white;
+    font-size: 12px;
+    margin-right: 5px;
+  }
+
+  .arabic { background: #3a5a2f; }
+  .french { background: #8b5e3c; }
+  .english { background: #4b7bec; }
+  .spanish { background: #e67e22; }
+
+  /* ===== Description Panel ===== */
+  .description {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, padding 0.5s ease;
+    background: #4CAF50;
+    color: white;
+    border-radius: 0 0 10px 10px;
+    padding: 0 10px;
+    font-size: 14px;
+  }
+
+  .description.open {
+    padding: 10px;
+    max-height: 200px;
+  }
+
+  /* ===== Categories ===== */
+  #categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .category {
+    padding: 5px 10px;
+    background: #8b5e3c;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 600px) {
+    .tool-card p {
+      font-size: 12px;
+    }
+    #searchBar {
+      font-size: 14px;
+      padding: 10px;
+    }
+    #logo {
+      width: 180px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loadingScreen">
+  <img id="loadingLogo" src="https://image2url.com/r2/default/images/1770934646510-7aaa09fd-0c67-4c19-a637-ae303a98c5d7.png" alt="AgriLex Logo">
+  <div id="loadingBarContainer"><div id="loadingBar"></div></div>
+  <div id="loadingPercent">0%</div>
+</div>
+
+<header>
+  <img id="logo" src="https://image2url.com/r2/default/images/1770934646510-7aaa09fd-0c67-4c19-a637-ae303a98c5d7.png" alt="AgriLex Logo">
+</header>
+
+<!-- Categories -->
+<div id="categories">
+  <div class="category" onclick="filterCategory('All')">All</div>
+  <div class="category" onclick="filterCategory('Plows')">Plows</div>
+  <div class="category" onclick="filterCategory('Tractors')">Tractors</div>
+  <div class="category" onclick="filterCategory('Harvest')">Harvest</div>
+</div>
+
+<input type="text" id="searchBar" placeholder="Search Arabic, French, English or Spanish..." onkeyup="searchTool()">
+
+<div class="tools-container" id="toolsList"></div>
+
+<script>
+// ===== Loading Animation =====
+let loadPercent = 0;
+const loadingBar = document.getElementById('loadingBar');
+const loadingPercent = document.getElementById('loadingPercent');
+const loadingScreen = document.getElementById('loadingScreen');
+
+let loadingInterval = setInterval(() => {
+  loadPercent += 2;
+  loadingBar.style.width = loadPercent + '%';
+  loadingPercent.textContent = loadPercent + '%';
+  if(loadPercent >= 100){
+    clearInterval(loadingInterval);
+    loadingScreen.classList.add('fade-out');
+  }
+}, 40);
+
+// ===== Tools Data =====
+const tools = [
+  {category:'Plows', arabic:"المحراث", french:"La charrue", english:"The plow", spanish:"El arado", image:"https://ibb.co/4RMMyYcn", description:"Used to till soil before planting."},
+  {category:'Tractors', arabic:"الجرار", french:"Le tracteur", english:"The tractor", spanish:"El tractor", image:"https://via.placeholder.com/300x150?text=Tractor", description:"Vehicle for pulling farm equipment."},
+  {category:'Harvest', arabic:"حاصدة القمح", french:"La moissonneuse-batteuse", english:"Combine harvester", spanish:"Cosechadora de trigo", image:"https://via.placeholder.com/300x150?text=Combine", description:"Machine that harvests crops efficiently."},
+  {category:'Plows', arabic:"المحراث اليدوي", french:"Charrue à main", english:"Hand plow", spanish:"Arado manual", image:"https://via.placeholder.com/300x150?text=Hand+Plow", description:"Manual plow for small plots."},
+  {category:'Harvest', arabic:"المنجل", french:"Faucille", english:"Sickle", spanish:"Hoz", image:"https://via.placeholder.com/300x150?text=Sickle", description:"Hand tool for cutting crops."},
+  {category:'Tractors', arabic:"ناقل السماد", french:"Épandeur d’engrais", english:"Fertilizer spreader", spanish:"Esparcidor de fertilizante", image:"https://via.placeholder.com/300x150?text=Fertilizer+Spreader", description:"Spreads fertilizer evenly."},
+  {category:'Harvest', arabic:"الحصادة", french:"La moissonneuse", english:"Harvester", spanish:"Segadora", image:"https://via.placeholder.com/300x150?text=Harvester", description:"Collects crops from the field."},
+  {category:'Plows', arabic:"المعول", french:"Pioche", english:"Pickaxe", spanish:"Pico", image:"https://via.placeholder.com/300x150?text=Pickaxe", description:"Tool to break hard soil."},
+  {category:'Tractors', arabic:"الجرار الصغير", french:"Petit tracteur", english:"Mini tractor", spanish:"Mini tractor", image:"https://via.placeholder.com/300x150?text=Mini+Tractor", description:"Small tractor for gardens."},
+  {category:'Harvest', arabic:"آلة الفرز", french:"La machine de tri", english:"Sorting machine", spanish:"Máquina clasificadora", image:"https://via.placeholder.com/300x150?text=Sorting+Machine", description:"Sorts harvested products."},
+  {category:'Plows', arabic:"فأس الحراثة", french:"Hache de charrue", english:"Plow axe", spanish:"Hacha de arado", image:"https://via.placeholder.com/300x150?text=Plow+Axe", description:"Used for breaking soil clods."},
+  {category:'Tractors', arabic:"الجرار الكبير", french:"Grand tracteur", english:"Big tractor", spanish:"Gran tractor", image:"https://via.placeholder.com/300x150?text=Big+Tractor", description:"Heavy-duty tractor for large farms."},
+  {category:'Harvest', arabic:"آلة التغليف", french:"La machine d'emballage", english:"Packaging machine", spanish:"Máquina de envasado", image:"https://via.placeholder.com/300x150?text=Packaging+Machine", description:"Packages harvested crops."},
+  {category:'Plows', arabic:"المدك", french:"Pilon", english:"Pestle", spanish:"Pilón", image:"https://via.placeholder.com/300x150?text=Pestle", description:"Used for pounding grains."},
+  {category:'Harvest', arabic:"مكشطة القش", french:"La raclette de paille", english:"Straw scraper", spanish:"Rasqueta de paja", image:"https://via.placeholder.com/300x150?text=Straw+Scraper", description:"Collects straw efficiently."},
+  {category:'Tractors', arabic:"المضخات", french:"Pompes", english:"Pumps", spanish:"Bombas", image:"https://via.placeholder.com/300x150?text=Pumps", description:"Pumps water for irrigation."},
+  {category:'Plows', arabic:"المجرفة", french:"La pelle", english:"Shovel", spanish:"Pala", image:"https://via.placeholder.com/300x150?text=Shovel", description:"Used to dig soil."},
+  {category:'Harvest', arabic:"معاول القطاف", french:"Les crochets de récolte", english:"Harvest hooks", spanish:"Ganchos de cosecha", image:"https://via.placeholder.com/300x150?text=Harvest+Hooks", description:"Hand tool for picking crops."},
+  {category:'Tractors', arabic:"حاضنة البيض", french:"Incubateur d’œufs", english:"Egg incubator", spanish:"Incubadora de huevos", image:"https://via.placeholder.com/300x150?text=Egg+Incubator", description:"Hatches eggs for poultry."},
+  {category:'Harvest', arabic:"آلة تنظيف الحظائر", french:"Plumeuse", english:"Feather plucker", spanish:"Plumadora", image:"https://via.placeholder.com/300x150?text=Feather+Plucker", description:"Removes feathers from poultry."}
+];
+
+// ===== Display Tools =====
+function displayTools(list){
+  const container = document.getElementById('toolsList');
+  container.innerHTML = '';
+  list.forEach(tool => {
+    const div = document.createElement('div');
+    div.className = 'tool-card';
+    div.innerHTML = `
+      <img src="${tool.image}" alt="${tool.english}">
+      <p><span class="lang-label arabic">AR</span>${tool.arabic}</p>
+      <p><span class="lang-label french">FR</span>${tool.french}</p>
+      <p><span class="lang-label english">EN</span>${tool.english}</p>
+      <p><span class="lang-label spanish">ES</span>${tool.spanish}</p>
+      <div class="description">${tool.description}</div>
+    `;
+    // Slide down description on click
+    div.querySelectorAll('p').forEach(p => {
+      p.addEventListener('click', () => {
+        const desc = div.querySelector('.description');
+        desc.classList.toggle('open');
+      });
+    });
+    container.appendChild(div);
+  });
+}
+
+// ===== Search =====
+function searchTool(){
+  const query = document.getElementById('searchBar').value.toLowerCase();
+  const filtered = tools.filter(tool =>
+    tool.arabic.includes(query) ||
+    tool.french.toLowerCase().includes(query) ||
+    tool.english.toLowerCase().includes(query) ||
+    tool.spanish.toLowerCase().includes(query)
+  );
+  displayTools(filtered);
+}
+
+// ===== Categories Filter =====
+function filterCategory(cat){
+  if(cat === 'All') displayTools(tools);
+  else displayTools(tools.filter(t => t.category === cat));
+}
+
+// Initial display
+displayTools(tools);
+</script>
+
+</body>
+</html>
